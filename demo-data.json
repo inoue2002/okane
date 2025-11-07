@@ -1,0 +1,423 @@
+{
+  "version": "1.0",
+  "exportDate": "2025-11-07T00:00:00.000Z",
+  "initialBalance": 500000,
+  "transactions": [
+    {
+      "id": "demo-001",
+      "date": "2024-11-10",
+      "type": "income",
+      "amount": 250000,
+      "description": "給料（11月分）",
+      "category": "給料"
+    },
+    {
+      "id": "demo-002",
+      "date": "2024-11-12",
+      "type": "expense",
+      "amount": 80000,
+      "description": "家賃",
+      "category": "固定費"
+    },
+    {
+      "id": "demo-003",
+      "date": "2024-11-15",
+      "type": "expense",
+      "amount": 35000,
+      "description": "食費・日用品",
+      "category": "生活費"
+    },
+    {
+      "id": "demo-004",
+      "date": "2024-11-20",
+      "type": "expense",
+      "amount": 120000,
+      "description": "MacBook修理代",
+      "category": "臨時支出"
+    },
+    {
+      "id": "demo-005",
+      "date": "2024-11-25",
+      "type": "income",
+      "amount": 80000,
+      "description": "副業収入（デザイン案件）",
+      "category": "副業"
+    },
+    {
+      "id": "demo-006",
+      "date": "2024-12-10",
+      "type": "income",
+      "amount": 250000,
+      "description": "給料（12月分）",
+      "category": "給料"
+    },
+    {
+      "id": "demo-007",
+      "date": "2024-12-12",
+      "type": "expense",
+      "amount": 80000,
+      "description": "家賃",
+      "category": "固定費"
+    },
+    {
+      "id": "demo-008",
+      "date": "2024-12-15",
+      "type": "expense",
+      "amount": 25000,
+      "description": "忘年会・飲み会",
+      "category": "交際費"
+    },
+    {
+      "id": "demo-009",
+      "date": "2024-12-20",
+      "type": "expense",
+      "amount": 150000,
+      "description": "クリスマスプレゼント・年末買い物",
+      "category": "娯楽"
+    },
+    {
+      "id": "demo-010",
+      "date": "2024-12-25",
+      "type": "income",
+      "amount": 100000,
+      "description": "ボーナス",
+      "category": "給料"
+    },
+    {
+      "id": "demo-011",
+      "date": "2025-01-10",
+      "type": "income",
+      "amount": 250000,
+      "description": "給料（1月分）",
+      "category": "給料"
+    },
+    {
+      "id": "demo-012",
+      "date": "2025-01-12",
+      "type": "expense",
+      "amount": 80000,
+      "description": "家賃",
+      "category": "固定費"
+    },
+    {
+      "id": "demo-013",
+      "date": "2025-01-15",
+      "type": "expense",
+      "amount": 180000,
+      "description": "帰省・お年玉",
+      "category": "臨時支出"
+    },
+    {
+      "id": "demo-014",
+      "date": "2025-01-20",
+      "type": "expense",
+      "amount": 45000,
+      "description": "新年会・食費",
+      "category": "交際費"
+    },
+    {
+      "id": "demo-015",
+      "date": "2025-02-10",
+      "type": "income",
+      "amount": 250000,
+      "description": "給料（2月分）",
+      "category": "給料"
+    },
+    {
+      "id": "demo-016",
+      "date": "2025-02-12",
+      "type": "expense",
+      "amount": 80000,
+      "description": "家賃",
+      "category": "固定費"
+    },
+    {
+      "id": "demo-017",
+      "date": "2025-02-14",
+      "type": "expense",
+      "amount": 15000,
+      "description": "バレンタイン",
+      "category": "交際費"
+    },
+    {
+      "id": "demo-018",
+      "date": "2025-02-28",
+      "type": "income",
+      "amount": 120000,
+      "description": "副業収入（コンサル）",
+      "category": "副業"
+    },
+    {
+      "id": "demo-019",
+      "date": "2025-03-10",
+      "type": "income",
+      "amount": 250000,
+      "description": "給料（3月分）",
+      "category": "給料"
+    },
+    {
+      "id": "demo-020",
+      "date": "2025-03-12",
+      "type": "expense",
+      "amount": 80000,
+      "description": "家賃",
+      "category": "固定費"
+    },
+    {
+      "id": "demo-021",
+      "date": "2025-03-15",
+      "type": "expense",
+      "amount": 200000,
+      "description": "iPhone購入",
+      "category": "買い物"
+    },
+    {
+      "id": "demo-022",
+      "date": "2025-03-25",
+      "type": "expense",
+      "amount": 60000,
+      "description": "歓送迎会",
+      "category": "交際費"
+    },
+    {
+      "id": "demo-023",
+      "date": "2025-04-10",
+      "type": "income",
+      "amount": 250000,
+      "description": "給料（4月分）",
+      "category": "給料"
+    },
+    {
+      "id": "demo-024",
+      "date": "2025-04-12",
+      "type": "expense",
+      "amount": 80000,
+      "description": "家賃",
+      "category": "固定費"
+    },
+    {
+      "id": "demo-025",
+      "date": "2025-04-15",
+      "type": "income",
+      "amount": 50000,
+      "description": "メルカリ売上",
+      "category": "その他"
+    },
+    {
+      "id": "demo-026",
+      "date": "2025-04-20",
+      "type": "expense",
+      "amount": 35000,
+      "description": "食費・日用品",
+      "category": "生活費"
+    },
+    {
+      "id": "demo-027",
+      "date": "2025-04-28",
+      "type": "expense",
+      "amount": 150000,
+      "description": "GW旅行費用",
+      "category": "旅行"
+    },
+    {
+      "id": "demo-028",
+      "date": "2025-05-10",
+      "type": "income",
+      "amount": 250000,
+      "description": "給料（5月分）",
+      "category": "給料"
+    },
+    {
+      "id": "demo-029",
+      "date": "2025-05-12",
+      "type": "expense",
+      "amount": 80000,
+      "description": "家賃",
+      "category": "固定費"
+    },
+    {
+      "id": "demo-030",
+      "date": "2025-05-15",
+      "type": "expense",
+      "amount": 30000,
+      "description": "食費",
+      "category": "生活費"
+    },
+    {
+      "id": "demo-031",
+      "date": "2025-05-25",
+      "type": "income",
+      "amount": 90000,
+      "description": "副業収入（記事執筆）",
+      "category": "副業"
+    },
+    {
+      "id": "demo-032",
+      "date": "2025-06-10",
+      "type": "income",
+      "amount": 250000,
+      "description": "給料（6月分）",
+      "category": "給料"
+    },
+    {
+      "id": "demo-033",
+      "date": "2025-06-12",
+      "type": "expense",
+      "amount": 80000,
+      "description": "家賃",
+      "category": "固定費"
+    },
+    {
+      "id": "demo-034",
+      "date": "2025-06-15",
+      "type": "expense",
+      "amount": 250000,
+      "description": "夏のエアコン購入",
+      "category": "買い物"
+    },
+    {
+      "id": "demo-035",
+      "date": "2025-06-25",
+      "type": "income",
+      "amount": 150000,
+      "description": "ボーナス",
+      "category": "給料"
+    },
+    {
+      "id": "demo-036",
+      "date": "2025-07-10",
+      "type": "income",
+      "amount": 250000,
+      "description": "給料（7月分）",
+      "category": "給料"
+    },
+    {
+      "id": "demo-037",
+      "date": "2025-07-12",
+      "type": "expense",
+      "amount": 80000,
+      "description": "家賃",
+      "category": "固定費"
+    },
+    {
+      "id": "demo-038",
+      "date": "2025-07-20",
+      "type": "expense",
+      "amount": 180000,
+      "description": "夏休み旅行（沖縄）",
+      "category": "旅行"
+    },
+    {
+      "id": "demo-039",
+      "date": "2025-07-25",
+      "type": "expense",
+      "amount": 40000,
+      "description": "夏服・セール買い物",
+      "category": "買い物"
+    },
+    {
+      "id": "demo-040",
+      "date": "2025-08-10",
+      "type": "income",
+      "amount": 250000,
+      "description": "給料（8月分）",
+      "category": "給料"
+    },
+    {
+      "id": "demo-041",
+      "date": "2025-08-12",
+      "type": "expense",
+      "amount": 80000,
+      "description": "家賃",
+      "category": "固定費"
+    },
+    {
+      "id": "demo-042",
+      "date": "2025-08-15",
+      "type": "expense",
+      "amount": 120000,
+      "description": "実家帰省・お盆",
+      "category": "臨時支出"
+    },
+    {
+      "id": "demo-043",
+      "date": "2025-08-25",
+      "type": "income",
+      "amount": 100000,
+      "description": "副業収入（Web開発）",
+      "category": "副業"
+    },
+    {
+      "id": "demo-044",
+      "date": "2025-09-10",
+      "type": "income",
+      "amount": 250000,
+      "description": "給料（9月分）",
+      "category": "給料"
+    },
+    {
+      "id": "demo-045",
+      "date": "2025-09-12",
+      "type": "expense",
+      "amount": 80000,
+      "description": "家賃",
+      "category": "固定費"
+    },
+    {
+      "id": "demo-046",
+      "date": "2025-09-20",
+      "type": "expense",
+      "amount": 85000,
+      "description": "健康診断・医療費",
+      "category": "医療"
+    },
+    {
+      "id": "demo-047",
+      "date": "2025-09-25",
+      "type": "expense",
+      "amount": 45000,
+      "description": "食費・日用品",
+      "category": "生活費"
+    },
+    {
+      "id": "demo-048",
+      "date": "2025-10-10",
+      "type": "income",
+      "amount": 250000,
+      "description": "給料（10月分）",
+      "category": "給料"
+    },
+    {
+      "id": "demo-049",
+      "date": "2025-10-12",
+      "type": "expense",
+      "amount": 80000,
+      "description": "家賃",
+      "category": "固定費"
+    },
+    {
+      "id": "demo-050",
+      "date": "2025-10-15",
+      "type": "expense",
+      "amount": 35000,
+      "description": "食費",
+      "category": "生活費"
+    },
+    {
+      "id": "demo-051",
+      "date": "2025-10-25",
+      "type": "income",
+      "amount": 70000,
+      "description": "副業収入（デザイン）",
+      "category": "副業"
+    },
+    {
+      "id": "demo-052",
+      "date": "2025-11-07",
+      "type": "expense",
+      "amount": 25000,
+      "description": "食費・今週分",
+      "category": "生活費"
+    }
+  ]
+}
