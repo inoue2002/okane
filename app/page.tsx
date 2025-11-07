@@ -6,6 +6,8 @@ import BalanceTimeline from './components/BalanceTimeline';
 import BalanceSummary from './components/BalanceSummary';
 import BalanceChart from './components/BalanceChart';
 import DataManager from './components/DataManager';
+import DisclaimerBanner from './components/DisclaimerBanner';
+import Footer from './components/Footer';
 import { Transaction } from '@/lib/types';
 import { calculateDailyBalances } from '@/lib/utils';
 import { loadTransactions, saveTransactions, loadInitialBalance, saveInitialBalance, clearAllData } from '@/lib/storage';
@@ -117,7 +119,11 @@ export default function Home() {
           dailyBalances={dailyBalances}
           onDeleteTransaction={handleDeleteTransaction}
         />
+
+        <Footer />
       </div>
+
+      <DisclaimerBanner />
     </div>
   );
 }
