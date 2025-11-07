@@ -1,36 +1,128 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 💰 お金シミュレーター
 
-## Getting Started
+日々の収支を管理し、残高の推移をシミュレーションできるWebアプリケーションです。
 
-First, run the development server:
+## ✨ 特徴
+
+### 📊 直感的な収支管理
+- **ボタンベースの入力UI**：クリックだけで簡単に取引を登録
+- **年・月・日をボタンで選択**：カレンダー形式で直感的な日付選択
+- **収入/支出の切り替え**：大きなボタンで一目で分かる
+
+### 📈 インタラクティブなグラフ
+- **残高推移の可視化**：滑らかな曲線グラフで残高の変化を表示
+- **期間選択機能**：1ヶ月〜5年まで自由に期間を変更
+- **ホバーツールチップ**：グラフ上にカーソルを合わせると、その日の残高を表示
+- **レスポンシブデザイン**：スマートフォンでも快適に閲覧
+
+### 💾 データ管理
+- **自動保存**：ブラウザのlocalStorageに自動保存
+- **エクスポート/インポート**：JSON形式でバックアップ・復元が可能
+- **データクリア**：必要に応じて全データを削除
+
+### 📱 取引履歴
+- **日別表示**：取引があった日だけを表示
+- **カテゴリ分類**：任意でカテゴリを設定可能
+- **削除機能**：不要な取引を個別に削除
+
+## 🚀 使い方
+
+### セットアップ
 
 ```bash
+# 依存関係のインストール
+npm install
+
+# 開発サーバーの起動
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+ブラウザで [http://localhost:3000](http://localhost:3000) を開きます。
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### 基本的な使い方
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+1. **初期残高の設定**
+   - サマリーカードの「初期残高」の横にある編集ボタンをクリック
+   - 現在の残高を入力して保存
 
-## Learn More
+2. **取引の追加**
+   - 「種類」で収入か支出を選択
+   - 年・月・日をボタンで選択
+   - 金額と説明を入力
+   - 必要に応じてカテゴリを入力
+   - 「追加」ボタンをクリック
 
-To learn more about Next.js, take a look at the following resources:
+3. **グラフで推移を確認**
+   - 期間ボタン（1ヶ月、3ヶ月、etc.）で表示期間を切り替え
+   - グラフにカーソルを合わせると、その日の残高を表示
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+4. **データのバックアップ**
+   - 右上の「📥 エクスポート」でJSONファイルをダウンロード
+   - 「📤 インポート」で以前のデータを復元
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## 🛠️ 技術スタック
 
-## Deploy on Vercel
+- **Framework**: [Next.js 16](https://nextjs.org/) (App Router)
+- **UI**: React 19 + TypeScript
+- **Styling**: [Tailwind CSS v4](https://tailwindcss.com/)
+- **Fonts**: Geist Sans & Geist Mono
+- **Storage**: Browser localStorage
+- **Linting**: ESLint (Next.js config)
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## 📁 プロジェクト構成
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+```
+okane/
+├── app/
+│   ├── components/          # Reactコンポーネント
+│   │   ├── BalanceChart.tsx        # グラフコンポーネント
+│   │   ├── BalanceSummary.tsx      # サマリー表示
+│   │   ├── BalanceTimeline.tsx     # 取引履歴
+│   │   ├── DataManager.tsx         # データ管理
+│   │   └── TransactionForm.tsx     # 入力フォーム
+│   ├── layout.tsx           # ルートレイアウト
+│   ├── page.tsx            # メインページ
+│   └── globals.css         # グローバルスタイル
+├── lib/
+│   ├── types.ts            # TypeScript型定義
+│   ├── utils.ts            # ユーティリティ関数
+│   ├── storage.ts          # localStorage操作
+│   └── export.ts           # エクスポート/インポート
+└── CLAUDE.md               # 開発ガイド
+```
+
+## 💡 データの保存について
+
+このアプリケーションは**ブラウザのlocalStorage**にデータを保存します。
+
+### 保存されるデータ
+- 取引データ（日付、種類、金額、説明、カテゴリ）
+- 初期残高
+
+### データが消える場合
+- ブラウザのキャッシュをクリアした時
+- シークレットモード/プライベートモードでの使用（終了時）
+- ブラウザのアンインストール
+
+### データの永続化
+定期的に「エクスポート」機能でJSONファイルをダウンロードし、バックアップを取ることをおすすめします。
+
+## 🎨 カスタマイズ
+
+### 期間の追加
+`app/components/BalanceChart.tsx`の`PERIOD_OPTIONS`配列を編集することで、表示期間のオプションを追加できます。
+
+### カラーテーマ
+Tailwind CSS v4のCSS変数を`app/globals.css`で変更することで、カラーテーマをカスタマイズできます。
+
+## 📄 ライセンス
+
+このプロジェクトはMITライセンスの下で公開されています。
+
+## 🤝 貢献
+
+バグ報告や機能リクエストは、GitHubのIssuesでお願いします。
+
+---
+
+Built with Next.js 16 + React 19 + Tailwind CSS v4
