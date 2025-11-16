@@ -1,16 +1,48 @@
 "use client"
 
+import { useState } from 'react';
 import { DailyBalance } from '@/lib/types';
 import { formatCurrency, formatDate } from '@/lib/utils';
 
 interface BalanceTimelineProps {
   dailyBalances: DailyBalance[];
   onDeleteTransaction: (id: string) => void;
+  onUpdateTransactionDate: (id: string, newDate: string) => void;
 }
 
-export default function BalanceTimeline({ dailyBalances, onDeleteTransaction }: BalanceTimelineProps) {
+export default function BalanceTimeline({ dailyBalances, onDeleteTransaction, onUpdateTransactionDate }: BalanceTimelineProps) {
+  const [draggedTransactionId, setDraggedTransactionId] = useState<string | null>(null);
+  const [dragOverDate, setDragOverDate] = useState<string | null>(null);
+
   // Filter to only show days with transactions
   const daysWithTransactions = dailyBalances.filter(day => day.transactions.length > 0);
+
+  const handleDragStart = (transactionId: string) => {
+    setDraggedTransactionId(transactionId);
+  };
+
+  const handleDragEnd = () => {
+    setDraggedTransactionId(null);
+    setDragOverDate(null);
+  };
+
+  const handleDragOver = (e: React.DragEvent, date: string) => {
+    e.preventDefault();
+    setDragOverDate(date);
+  };
+
+  const handleDragLeave = () => {
+    setDragOverDate(null);
+  };
+
+  const handleDrop = (e: React.DragEvent, targetDate: string) => {
+    e.preventDefault();
+    if (draggedTransactionId && targetDate !== dragOverDate) {
+      onUpdateTransactionDate(draggedTransactionId, targetDate);
+    }
+    setDraggedTransactionId(null);
+    setDragOverDate(null);
+  };
 
   if (daysWithTransactions.length === 0) {
     return (
@@ -29,7 +61,12 @@ export default function BalanceTimeline({ dailyBalances, onDeleteTransaction }: 
         {daysWithTransactions.map((day) => (
         <div
           key={day.date}
-          className="bg-white dark:bg-zinc-900 rounded-lg shadow-md overflow-hidden"
+          className={`bg-white dark:bg-zinc-900 rounded-lg shadow-md overflow-hidden transition-all ${
+            dragOverDate === day.date ? 'ring-2 ring-blue-500 ring-offset-2' : ''
+          }`}
+          onDragOver={(e) => handleDragOver(e, day.date)}
+          onDragLeave={handleDragLeave}
+          onDrop={(e) => handleDrop(e, day.date)}
         >
           <div className="bg-zinc-100 dark:bg-zinc-800 px-6 py-3 border-b border-zinc-200 dark:border-zinc-700">
             <div className="flex justify-between items-center">
@@ -57,28 +94,43 @@ export default function BalanceTimeline({ dailyBalances, onDeleteTransaction }: 
                 {day.transactions.map((transaction) => (
                   <div
                     key={transaction.id}
-                    className="flex justify-between items-start py-2 border-b border-zinc-100 dark:border-zinc-800 last:border-0"
+                    draggable
+                    onDragStart={() => handleDragStart(transaction.id)}
+                    onDragEnd={handleDragEnd}
+                    className={`flex justify-between items-start py-2 border-b border-zinc-100 dark:border-zinc-800 last:border-0 cursor-move transition-opacity ${
+                      draggedTransactionId === transaction.id ? 'opacity-50' : 'opacity-100'
+                    }`}
                   >
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2">
-                        <span
-                          className={`inline-block px-2 py-0.5 rounded text-xs font-medium ${
-                            transaction.type === 'income'
-                              ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
-                              : 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
-                          }`}
-                        >
-                          {transaction.type === 'income' ? '収入' : '支出'}
-                        </span>
-                        {transaction.category && (
-                          <span className="inline-block px-2 py-0.5 rounded text-xs font-medium bg-zinc-100 text-zinc-700 dark:bg-zinc-800 dark:text-zinc-300">
-                            {transaction.category}
+                    <div className="flex items-center gap-2 flex-1">
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        className="h-5 w-5 text-zinc-400 dark:text-zinc-600 flex-shrink-0"
+                        viewBox="0 0 20 20"
+                        fill="currentColor"
+                      >
+                        <path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z" />
+                      </svg>
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2">
+                          <span
+                            className={`inline-block px-2 py-0.5 rounded text-xs font-medium ${
+                              transaction.type === 'income'
+                                ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
+                                : 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
+                            }`}
+                          >
+                            {transaction.type === 'income' ? '収入' : '支出'}
                           </span>
-                        )}
+                          {transaction.category && (
+                            <span className="inline-block px-2 py-0.5 rounded text-xs font-medium bg-zinc-100 text-zinc-700 dark:bg-zinc-800 dark:text-zinc-300">
+                              {transaction.category}
+                            </span>
+                          )}
+                        </div>
+                        <p className="mt-1 text-zinc-900 dark:text-zinc-50">
+                          {transaction.description}
+                        </p>
                       </div>
-                      <p className="mt-1 text-zinc-900 dark:text-zinc-50">
-                        {transaction.description}
-                      </p>
                     </div>
                     <div className="flex items-center gap-3 ml-4">
                       <span

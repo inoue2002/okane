@@ -43,6 +43,12 @@ export default function Home() {
     }
   };
 
+  const handleUpdateTransactionDate = (id: string, newDate: string) => {
+    setTransactions(prev =>
+      prev.map(t => t.id === id ? { ...t, date: newDate } : t)
+    );
+  };
+
   const handleUpdateInitialBalance = (balance: number) => {
     setInitialBalance(balance);
     saveInitialBalance(balance);
@@ -118,6 +124,7 @@ export default function Home() {
         <BalanceTimeline
           dailyBalances={dailyBalances}
           onDeleteTransaction={handleDeleteTransaction}
+          onUpdateTransactionDate={handleUpdateTransactionDate}
         />
 
         <Footer />
