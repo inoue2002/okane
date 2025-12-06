@@ -1,8 +1,13 @@
 "use client"
 
-import { useState } from 'react';
+import { useState, useRef, useEffect, useCallback } from 'react';
 import { DailyBalance } from '@/lib/types';
 import { formatCurrency, formatDate } from '@/lib/utils';
+
+// Get today's date as YYYY-MM-DD string
+function getToday(): string {
+  return new Date().toISOString().split('T')[0];
+}
 
 interface BalanceTimelineProps {
   dailyBalances: DailyBalance[];
@@ -36,8 +41,40 @@ export default function BalanceTimeline({ dailyBalances, onDeleteTransaction, on
   const [editingTransactionId, setEditingTransactionId] = useState<string | null>(null);
   const [editingAmount, setEditingAmount] = useState<string>('');
 
+  const containerRef = useRef<HTMLDivElement>(null);
+  const todayRef = useRef<HTMLDivElement>(null);
+  const today = getToday();
+
   // Filter to only show days with transactions
   const daysWithTransactions = dailyBalances.filter(day => day.transactions.length > 0);
+
+  // Find today or the closest date to today
+  const findTodayOrClosestIndex = useCallback(() => {
+    if (daysWithTransactions.length === 0) return -1;
+
+    // Check if today exists
+    const todayIndex = daysWithTransactions.findIndex(day => day.date === today);
+    if (todayIndex !== -1) return todayIndex;
+
+    // Find the closest future date (first date >= today)
+    const futureIndex = daysWithTransactions.findIndex(day => day.date >= today);
+    if (futureIndex !== -1) return futureIndex;
+
+    // If no future dates, return the last (most recent past) date
+    return daysWithTransactions.length - 1;
+  }, [daysWithTransactions, today]);
+
+  const todayOrClosestIndex = findTodayOrClosestIndex();
+
+  // Scroll to today on mount
+  useEffect(() => {
+    if (todayRef.current && containerRef.current) {
+      // Small delay to ensure DOM is ready
+      setTimeout(() => {
+        todayRef.current?.scrollIntoView({ block: 'start' });
+      }, 100);
+    }
+  }, [daysWithTransactions.length]);
 
   const handleDragStart = (transactionId: string) => {
     setDraggedTransactionId(transactionId);
@@ -176,24 +213,43 @@ export default function BalanceTimeline({ dailyBalances, onDeleteTransaction, on
       <h2 className="text-xl font-semibold mb-4 text-zinc-900 dark:text-zinc-50">
         取引履歴
       </h2>
-      <div className="space-y-4">
-        {daysWithTransactions.map((day, index) => (
-          <div key={day.date}>
+      <div
+        ref={containerRef}
+        className="space-y-4 max-h-[600px] overflow-y-auto pr-2"
+      >
+        {daysWithTransactions.map((day, index) => {
+          const isToday = day.date === today;
+          const isTarget = index === todayOrClosestIndex;
+
+          return (
+          <div
+            key={day.date}
+            ref={isTarget ? todayRef : null}
+          >
             {/* Gap indicator before this day (if there's a gap from previous day) */}
             {index > 0 && renderGapIndicator(daysWithTransactions[index - 1].date, day.date, index)}
             <div
               className={`bg-white dark:bg-zinc-900 rounded-lg shadow-md overflow-hidden transition-all ${
                 dragOverDate === day.date ? 'ring-2 ring-blue-500 ring-offset-2' : ''
-              }`}
+              } ${isToday ? 'ring-2 ring-blue-500 dark:ring-blue-400' : ''}`}
               onDragOver={(e) => handleDragOver(e, day.date)}
               onDragLeave={handleDragLeave}
               onDrop={(e) => handleDrop(e, day.date)}
             >
-              <div className="bg-zinc-100 dark:bg-zinc-800 px-6 py-3 border-b border-zinc-200 dark:border-zinc-700">
+              <div className={`px-6 py-3 border-b border-zinc-200 dark:border-zinc-700 ${
+                isToday ? 'bg-blue-100 dark:bg-blue-900' : 'bg-zinc-100 dark:bg-zinc-800'
+              }`}>
                 <div className="flex justify-between items-center">
-                  <h3 className="text-lg font-semibold text-zinc-900 dark:text-zinc-50">
-                    {formatDate(day.date)}
-                  </h3>
+                  <div className="flex items-center gap-2">
+                    <h3 className="text-lg font-semibold text-zinc-900 dark:text-zinc-50">
+                      {formatDate(day.date)}
+                    </h3>
+                    {isToday && (
+                      <span className="px-2 py-0.5 text-xs font-medium bg-blue-500 text-white rounded-full">
+                        今日
+                      </span>
+                    )}
+                  </div>
                   <div className="text-right">
                     <div className={`text-xl font-bold ${day.balance >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
                       残高: {formatCurrency(day.balance)}
@@ -309,7 +365,8 @@ export default function BalanceTimeline({ dailyBalances, onDeleteTransaction, on
               )}
             </div>
           </div>
-        ))}
+          );
+        })}
       </div>
     </div>
   );
