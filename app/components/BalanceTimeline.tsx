@@ -8,6 +8,7 @@ interface BalanceTimelineProps {
   dailyBalances: DailyBalance[];
   onDeleteTransaction: (id: string) => void;
   onUpdateTransactionDate: (id: string, newDate: string) => void;
+  onUpdateTransactionAmount: (id: string, newAmount: number) => void;
 }
 
 // Generate dates between two dates (exclusive of start, inclusive of end)
@@ -28,10 +29,12 @@ function getDatesBetween(startDate: string, endDate: string): string[] {
   return dates;
 }
 
-export default function BalanceTimeline({ dailyBalances, onDeleteTransaction, onUpdateTransactionDate }: BalanceTimelineProps) {
+export default function BalanceTimeline({ dailyBalances, onDeleteTransaction, onUpdateTransactionDate, onUpdateTransactionAmount }: BalanceTimelineProps) {
   const [draggedTransactionId, setDraggedTransactionId] = useState<string | null>(null);
   const [dragOverDate, setDragOverDate] = useState<string | null>(null);
   const [expandedGaps, setExpandedGaps] = useState<Set<string>>(new Set());
+  const [editingTransactionId, setEditingTransactionId] = useState<string | null>(null);
+  const [editingAmount, setEditingAmount] = useState<string>('');
 
   // Filter to only show days with transactions
   const daysWithTransactions = dailyBalances.filter(day => day.transactions.length > 0);
@@ -74,6 +77,35 @@ export default function BalanceTimeline({ dailyBalances, onDeleteTransaction, on
       }
       return newSet;
     });
+  };
+
+  const handleStartEditAmount = (transactionId: string, currentAmount: number) => {
+    setEditingTransactionId(transactionId);
+    setEditingAmount(currentAmount.toString());
+  };
+
+  const handleSaveAmount = () => {
+    if (editingTransactionId) {
+      const newAmount = parseFloat(editingAmount);
+      if (!isNaN(newAmount) && newAmount > 0) {
+        onUpdateTransactionAmount(editingTransactionId, newAmount);
+      }
+    }
+    setEditingTransactionId(null);
+    setEditingAmount('');
+  };
+
+  const handleCancelEdit = () => {
+    setEditingTransactionId(null);
+    setEditingAmount('');
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      handleSaveAmount();
+    } else if (e.key === 'Escape') {
+      handleCancelEdit();
+    }
   };
 
   // Render empty drop zone for a date without transactions
@@ -222,16 +254,35 @@ export default function BalanceTimeline({ dailyBalances, onDeleteTransaction, on
                           </div>
                         </div>
                         <div className="flex items-center gap-3 ml-4">
-                          <span
-                            className={`text-lg font-semibold ${
-                              transaction.type === 'income'
-                                ? 'text-green-600 dark:text-green-400'
-                                : 'text-red-600 dark:text-red-400'
-                            }`}
-                          >
-                            {transaction.type === 'income' ? '+' : '-'}
-                            {formatCurrency(transaction.amount)}
-                          </span>
+                          {editingTransactionId === transaction.id ? (
+                            <div className="flex items-center gap-2">
+                              <span className={transaction.type === 'income' ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}>
+                                {transaction.type === 'income' ? '+' : '-'}¥
+                              </span>
+                              <input
+                                type="number"
+                                value={editingAmount}
+                                onChange={(e) => setEditingAmount(e.target.value)}
+                                onKeyDown={handleKeyDown}
+                                onBlur={handleSaveAmount}
+                                className="w-24 px-2 py-1 text-right text-lg font-semibold border border-zinc-300 dark:border-zinc-600 rounded bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-50"
+                                autoFocus
+                              />
+                            </div>
+                          ) : (
+                            <button
+                              onClick={() => handleStartEditAmount(transaction.id, transaction.amount)}
+                              className={`text-lg font-semibold hover:underline cursor-pointer ${
+                                transaction.type === 'income'
+                                  ? 'text-green-600 dark:text-green-400'
+                                  : 'text-red-600 dark:text-red-400'
+                              }`}
+                              title="クリックして金額を編集"
+                            >
+                              {transaction.type === 'income' ? '+' : '-'}
+                              {formatCurrency(transaction.amount)}
+                            </button>
+                          )}
                           <button
                             onClick={() => onDeleteTransaction(transaction.id)}
                             className="text-zinc-400 hover:text-red-600 dark:hover:text-red-400 transition-colors"

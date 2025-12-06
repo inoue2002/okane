@@ -49,6 +49,12 @@ export default function Home() {
     );
   };
 
+  const handleUpdateTransactionAmount = (id: string, newAmount: number) => {
+    setTransactions(prev =>
+      prev.map(t => t.id === id ? { ...t, amount: newAmount } : t)
+    );
+  };
+
   const handleUpdateInitialBalance = (balance: number) => {
     setInitialBalance(balance);
     saveInitialBalance(balance);
@@ -125,6 +131,7 @@ export default function Home() {
           dailyBalances={dailyBalances}
           onDeleteTransaction={handleDeleteTransaction}
           onUpdateTransactionDate={handleUpdateTransactionDate}
+          onUpdateTransactionAmount={handleUpdateTransactionAmount}
         />
 
         <Footer />
