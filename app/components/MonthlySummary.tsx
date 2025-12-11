@@ -14,7 +14,6 @@ interface MonthlyData {
   month: number;
   income: number;
   expense: number;
-  balance: number;
 }
 
 export default function MonthlySummary({ transactions }: MonthlySummaryProps) {
@@ -36,7 +35,6 @@ export default function MonthlySummary({ transactions }: MonthlySummaryProps) {
           month,
           income: 0,
           expense: 0,
-          balance: 0,
         });
       }
 
@@ -46,7 +44,6 @@ export default function MonthlySummary({ transactions }: MonthlySummaryProps) {
       } else {
         data.expense += t.amount;
       }
-      data.balance = data.income - data.expense;
     });
 
     return Array.from(dataMap.values()).sort((a, b) =>
@@ -65,14 +62,13 @@ export default function MonthlySummary({ transactions }: MonthlySummaryProps) {
   }, [monthlyData, selectedYear]);
 
   const yearlyTotals = useMemo(() => {
-    const totals = filteredData.reduce(
+    return filteredData.reduce(
       (acc, d) => ({
         income: acc.income + d.income,
         expense: acc.expense + d.expense,
       }),
       { income: 0, expense: 0 }
     );
-    return { ...totals, balance: totals.income - totals.expense };
   }, [filteredData]);
 
   const formatMonth = (month: number) => {
@@ -117,7 +113,7 @@ export default function MonthlySummary({ transactions }: MonthlySummaryProps) {
       </div>
 
       {/* 合計サマリー */}
-      <div className="grid grid-cols-3 gap-4 mb-4 p-4 bg-zinc-50 dark:bg-zinc-800 rounded-lg">
+      <div className="grid grid-cols-2 gap-4 mb-4 p-4 bg-zinc-50 dark:bg-zinc-800 rounded-lg">
         <div className="text-center">
           <div className="text-xs text-zinc-500 dark:text-zinc-400 mb-1">
             {selectedYear ? `${selectedYear}年` : '全期間'}の収入
@@ -132,18 +128,6 @@ export default function MonthlySummary({ transactions }: MonthlySummaryProps) {
           </div>
           <div className="text-lg font-bold text-red-600 dark:text-red-400">
             {formatCurrency(yearlyTotals.expense)}
-          </div>
-        </div>
-        <div className="text-center">
-          <div className="text-xs text-zinc-500 dark:text-zinc-400 mb-1">
-            {selectedYear ? `${selectedYear}年` : '全期間'}の収支
-          </div>
-          <div className={`text-lg font-bold ${
-            yearlyTotals.balance >= 0
-              ? 'text-green-600 dark:text-green-400'
-              : 'text-red-600 dark:text-red-400'
-          }`}>
-            {yearlyTotals.balance >= 0 ? '+' : ''}{formatCurrency(yearlyTotals.balance)}
           </div>
         </div>
       </div>
@@ -162,9 +146,6 @@ export default function MonthlySummary({ transactions }: MonthlySummaryProps) {
               <th className="text-right py-2 px-3 text-sm font-medium text-zinc-600 dark:text-zinc-400">
                 支出
               </th>
-              <th className="text-right py-2 px-3 text-sm font-medium text-zinc-600 dark:text-zinc-400">
-                収支
-              </th>
             </tr>
           </thead>
           <tbody>
@@ -181,13 +162,6 @@ export default function MonthlySummary({ transactions }: MonthlySummaryProps) {
                 </td>
                 <td className="py-3 px-3 text-right text-red-600 dark:text-red-400">
                   {formatCurrency(data.expense)}
-                </td>
-                <td className={`py-3 px-3 text-right font-medium ${
-                  data.balance >= 0
-                    ? 'text-green-600 dark:text-green-400'
-                    : 'text-red-600 dark:text-red-400'
-                }`}>
-                  {data.balance >= 0 ? '+' : ''}{formatCurrency(data.balance)}
                 </td>
               </tr>
             ))}
