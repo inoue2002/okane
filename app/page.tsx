@@ -5,6 +5,7 @@ import TransactionForm from './components/TransactionForm';
 import BalanceTimeline from './components/BalanceTimeline';
 import BalanceSummary from './components/BalanceSummary';
 import BalanceChart from './components/BalanceChart';
+import MonthlySummary from './components/MonthlySummary';
 import DataManager from './components/DataManager';
 import DisclaimerBanner from './components/DisclaimerBanner';
 import Footer from './components/Footer';
@@ -124,6 +125,8 @@ export default function Home() {
           dailyBalances={dailyBalances}
           initialBalance={initialBalance}
         />
+
+        <MonthlySummary transactions={transactions} />
 
         <TransactionForm onAddTransaction={handleAddTransaction} />
 
