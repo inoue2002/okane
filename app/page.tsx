@@ -10,6 +10,7 @@ import RecurringTemplates from './components/RecurringTemplates';
 import DataManager from './components/DataManager';
 import DisclaimerBanner from './components/DisclaimerBanner';
 import Footer from './components/Footer';
+import Modal from './components/Modal';
 import { Transaction } from '@/lib/types';
 import { calculateDailyBalances } from '@/lib/utils';
 import {
@@ -24,6 +25,7 @@ export default function Home() {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [initialBalance, setInitialBalance] = useState(0);
   const [isLoaded, setIsLoaded] = useState(false);
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
 
   // Load data from localStorage on mount
   useEffect(() => {
@@ -45,6 +47,11 @@ export default function Home() {
     setTransactions(prev => [...prev, transaction]);
   };
 
+  const handleAddTransactionFromModal = (transaction: Transaction) => {
+    handleAddTransaction(transaction);
+    setIsAddModalOpen(false);
+  };
+
   const handleDeleteTransaction = (id: string) => {
     if (confirm('この取引を削除しますか？')) {
       setTransactions(prev => prev.filter(t => t.id !== id));
@@ -61,11 +68,6 @@ export default function Home() {
     setTransactions(prev =>
       prev.map(t => t.id === id ? { ...t, amount: newAmount } : t)
     );
-  };
-
-  const handleUpdateInitialBalance = (balance: number) => {
-    setInitialBalance(balance);
-    saveInitialBalance(balance);
   };
 
   const handleClearAll = () => {
@@ -86,16 +88,23 @@ export default function Home() {
   // Calculate daily balances
   const dailyBalances = calculateDailyBalances(transactions, initialBalance);
 
-  // Calculate totals
-  const totalIncome = transactions
-    .filter(t => t.type === 'income')
+  const currentYear = new Date().getFullYear();
+  const todayString = new Date().toISOString().split('T')[0];
+
+  const yearIncome = transactions
+    .filter(t => t.type === 'income' && t.date.startsWith(`${currentYear}-`))
     .reduce((sum, t) => sum + t.amount, 0);
 
-  const totalExpense = transactions
-    .filter(t => t.type === 'expense')
+  const yearExpense = transactions
+    .filter(t => t.type === 'expense' && t.date.startsWith(`${currentYear}-`))
     .reduce((sum, t) => sum + t.amount, 0);
 
-  const currentBalance = initialBalance + totalIncome - totalExpense;
+  const todayBalance = transactions
+    .filter(t => t.date <= todayString)
+    .reduce(
+      (sum, t) => sum + (t.type === 'income' ? t.amount : -t.amount),
+      initialBalance
+    );
 
   if (!isLoaded) {
     return (
@@ -112,20 +121,28 @@ export default function Home() {
           <h1 className="text-4xl font-bold text-zinc-900 dark:text-zinc-50">
             お金シミュレーター
           </h1>
-          <DataManager
-            transactions={transactions}
-            initialBalance={initialBalance}
-            onImport={handleImport}
-            onClearAll={handleClearAll}
-          />
+          <div className="flex flex-wrap items-center gap-2">
+            <button
+              type="button"
+              onClick={() => setIsAddModalOpen(true)}
+              className="px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold shadow-md hover:shadow-lg transition-all"
+            >
+              ＋ 取引追加
+            </button>
+            <DataManager
+              transactions={transactions}
+              initialBalance={initialBalance}
+              onImport={handleImport}
+              onClearAll={handleClearAll}
+            />
+          </div>
         </div>
 
         <BalanceSummary
-          initialBalance={initialBalance}
-          onUpdateInitialBalance={handleUpdateInitialBalance}
-          currentBalance={currentBalance}
-          totalIncome={totalIncome}
-          totalExpense={totalExpense}
+          year={currentYear}
+          todayBalance={todayBalance}
+          yearIncome={yearIncome}
+          yearExpense={yearExpense}
         />
 
         <BalanceChart
@@ -140,8 +157,6 @@ export default function Home() {
           onAddTransaction={handleAddTransaction}
         />
 
-        <TransactionForm onAddTransaction={handleAddTransaction} />
-
         <BalanceTimeline
           dailyBalances={dailyBalances}
           onDeleteTransaction={handleDeleteTransaction}
@@ -151,6 +166,14 @@ export default function Home() {
 
         <Footer />
       </div>
+
+      <Modal
+        isOpen={isAddModalOpen}
+        onClose={() => setIsAddModalOpen(false)}
+        title="取引を追加"
+      >
+        <TransactionForm onAddTransaction={handleAddTransactionFromModal} />
+      </Modal>
 
       <DisclaimerBanner />
     </div>
