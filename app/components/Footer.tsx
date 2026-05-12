@@ -28,6 +28,17 @@ export default function Footer() {
               GitHub
             </a>
           </div>
+          <p>
+            <a
+              href="https://github.com/inoue2002/okane-skills"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="underline hover:text-zinc-900 dark:hover:text-zinc-200 transition-colors"
+            >
+              okane-skills
+            </a>
+            {' '}を使えば、お好きなAIエージェントに修正を依頼できます
+          </p>
           <p className="text-xs text-zinc-500 dark:text-zinc-500">
             Built with Next.js 16 + React 19 + Tailwind CSS v4
           </p>

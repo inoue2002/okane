@@ -22,27 +22,42 @@ const PERIOD_OPTIONS: { value: PeriodType; label: string; months: number }[] = [
 
 export default function BalanceChart({ dailyBalances, initialBalance }: BalanceChartProps) {
   const [selectedPeriod, setSelectedPeriod] = useState<PeriodType>('1year');
+  const [includesPast, setIncludesPast] = useState(false);
   const [hoveredPoint, setHoveredPoint] = useState<{ x: number; y: number; date: string; balance: number } | null>(null);
   const [mousePosition, setMousePosition] = useState<{ x: number; y: number } | null>(null);
 
   const chartData = useMemo(() => {
-    // Generate date range from today to selected period
     const today = new Date();
-    const endDate = new Date(today);
     const selectedOption = PERIOD_OPTIONS.find(p => p.value === selectedPeriod)!;
-    endDate.setMonth(today.getMonth() + selectedOption.months);
+    const totalMonths = selectedOption.months;
 
-    // Create a map of existing daily balances
+    const startDate = new Date(today);
+    if (includesPast) {
+      startDate.setMonth(today.getMonth() - Math.floor(totalMonths / 2));
+    }
+    const endDate = new Date(today);
+    endDate.setMonth(
+      today.getMonth() + (includesPast ? Math.ceil(totalMonths / 2) : totalMonths)
+    );
+
     const balanceMap = new Map<string, number>();
     dailyBalances.forEach(day => {
       balanceMap.set(day.date, day.balance);
     });
 
-    // Generate complete date range with balances
-    const dataPoints: { date: Date; dateString: string; balance: number }[] = [];
+    // startDate より前の最も近い日付の残高を初期値とする
+    const startString = startDate.toISOString().split('T')[0];
     let currentBalance = initialBalance;
+    for (const day of dailyBalances) {
+      if (day.date < startString) {
+        currentBalance = day.balance;
+      } else {
+        break;
+      }
+    }
 
-    for (let date = new Date(today); date <= endDate; date.setDate(date.getDate() + 1)) {
+    const dataPoints: { date: Date; dateString: string; balance: number }[] = [];
+    for (let date = new Date(startDate); date <= endDate; date.setDate(date.getDate() + 1)) {
       const dateString = date.toISOString().split('T')[0];
 
       if (balanceMap.has(dateString)) {
@@ -209,7 +224,19 @@ export default function BalanceChart({ dailyBalances, initialBalance }: BalanceC
         <h2 className="text-xl font-semibold text-zinc-900 dark:text-zinc-50">
           残高推移グラフ
         </h2>
-        <div className="flex flex-wrap gap-2">
+        <div className="flex flex-wrap items-center gap-2">
+          <button
+            type="button"
+            onClick={() => setIncludesPast(v => !v)}
+            className={`px-3 py-1.5 text-sm font-medium rounded-md transition-colors ${
+              includesPast
+                ? 'bg-zinc-700 text-white dark:bg-zinc-200 dark:text-zinc-900'
+                : 'bg-zinc-100 text-zinc-700 hover:bg-zinc-200 dark:bg-zinc-800 dark:text-zinc-300 dark:hover:bg-zinc-700'
+            }`}
+            title="過去のデータも含めて表示"
+          >
+            {includesPast ? '過去も表示中' : '過去も表示'}
+          </button>
           {PERIOD_OPTIONS.map(option => (
             <button
               key={option.value}
@@ -316,6 +343,37 @@ export default function BalanceChart({ dailyBalances, initialBalance }: BalanceC
             </text>
           ))}
 
+          {/* Today line */}
+          {(() => {
+            const todayString = new Date().toISOString().split('T')[0];
+            const todayIndex = chartData.findIndex(d => d.dateString === todayString);
+            if (todayIndex < 0) return null;
+            const todayX = padding.left + (todayIndex / Math.max(chartData.length - 1, 1)) * chartWidth;
+            return (
+              <>
+                <line
+                  x1={todayX}
+                  y1={padding.top}
+                  x2={todayX}
+                  y2={padding.top + chartHeight}
+                  stroke="currentColor"
+                  strokeWidth="1.5"
+                  strokeDasharray="4 3"
+                  className="text-zinc-500 dark:text-zinc-400"
+                />
+                <text
+                  x={todayX}
+                  y={padding.top - 6}
+                  textAnchor="middle"
+                  className="text-[10px] fill-zinc-500 dark:fill-zinc-400 font-medium"
+                  style={{ fontFamily: 'system-ui, sans-serif' }}
+                >
+                  今日
+                </text>
+              </>
+            );
+          })()}
+
           {/* X-axis labels */}
           {xAxisLabels.map((label, i) => (
             <text
@@ -414,9 +472,6 @@ export default function BalanceChart({ dailyBalances, initialBalance }: BalanceC
         </svg>
       </div>
 
-      <div className="mt-4 text-sm text-zinc-600 dark:text-zinc-400 text-center">
-        今日から{PERIOD_OPTIONS.find(p => p.value === selectedPeriod)?.label}の残高推移を表示しています
-      </div>
     </div>
   );
 }

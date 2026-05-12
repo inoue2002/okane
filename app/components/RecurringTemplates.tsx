@@ -16,6 +16,7 @@ interface RecurringTemplatesProps {
   onAddTransaction: (transaction: Transaction) => void;
 }
 
+const MONTHS_BEFORE = 0;
 const MONTHS_AFTER = 5; // 当月含めて6ヶ月
 
 export default function RecurringTemplates({
@@ -23,7 +24,7 @@ export default function RecurringTemplates({
   onAddTransaction,
 }: RecurringTemplatesProps) {
   const yearMonths = useMemo(
-    () => getRecurringMonths(0, MONTHS_AFTER),
+    () => getRecurringMonths(MONTHS_BEFORE, MONTHS_AFTER),
     []
   );
 

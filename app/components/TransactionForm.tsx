@@ -66,11 +66,7 @@ export default function TransactionForm({ onAddTransaction }: TransactionFormPro
   const months = ['1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月'];
 
   return (
-    <form onSubmit={handleSubmit} className="bg-white dark:bg-zinc-900 rounded-lg shadow-md p-6 mb-6">
-      <h2 className="text-xl font-semibold mb-6 text-zinc-900 dark:text-zinc-50">
-        取引を追加
-      </h2>
-
+    <form onSubmit={handleSubmit}>
       {/* Transaction Type */}
       <div className="mb-6">
         <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-3">
