@@ -16,3 +16,21 @@ export interface DailyBalance {
   expense: number;
   transactions: Transaction[];
 }
+
+export type RecurringMonthStatus = 'matched' | 'missing' | 'upcoming';
+
+export interface RecurringMonthCell {
+  yearMonth: string; // YYYY-MM
+  status: RecurringMonthStatus;
+  matchedTransactionId?: string;
+}
+
+export interface DetectedPattern {
+  key: string; // 正規化済みキー
+  displayDescription: string; // 直近の取引で使われた説明
+  type: TransactionType;
+  suggestedAmount: number; // 直近の金額
+  typicalDay: number; // 直近の日
+  matchedMonths: Set<string>; // YYYY-MM
+  latestTransaction: Transaction;
+}
