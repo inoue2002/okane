@@ -34,6 +34,28 @@ export default function RecurringTemplates({
 
   const patterns = useMemo(() => detectPatterns(transactions, 2), [transactions]);
 
+  const sortedPatterns = useMemo(() => {
+    const counts = new Map<string, { matched: number; missing: number }>();
+    for (const p of patterns) {
+      const cells = computePatternMonthStatuses(p, yearMonths);
+      counts.set(p.key, {
+        matched: cells.filter(c => c.status === 'matched').length,
+        missing: cells.filter(c => c.status === 'missing').length,
+      });
+    }
+    return [...patterns].sort((a, b) => {
+      const ca = counts.get(a.key)!;
+      const cb = counts.get(b.key)!;
+      if (cb.matched !== ca.matched) return cb.matched - ca.matched;
+      if (cb.missing !== ca.missing) return cb.missing - ca.missing;
+      return b.matchedMonths.size - a.matchedMonths.size;
+    });
+  }, [patterns, yearMonths]);
+
+  const formatPatternLabel = (description: string) => {
+    return description.replace(/[0-9０-９]+/g, 'X');
+  };
+
   const formatMonthLabel = (ym: string) => {
     const { year, month } = parseYearMonth(ym);
     const current = parseYearMonth(currentYearMonth);
@@ -86,7 +108,7 @@ export default function RecurringTemplates({
               </tr>
             </thead>
             <tbody>
-              {patterns.map((pattern) => {
+              {sortedPatterns.map((pattern) => {
                 const cells = computePatternMonthStatuses(pattern, yearMonths);
                 return (
                   <tr
@@ -95,7 +117,7 @@ export default function RecurringTemplates({
                   >
                     <td className="py-3 pr-3">
                       <div className="font-medium text-zinc-900 dark:text-zinc-50">
-                        {pattern.displayDescription}
+                        {formatPatternLabel(pattern.displayDescription)}
                       </div>
                       <div className="text-xs text-zinc-500 dark:text-zinc-400">
                         {pattern.type === 'income' ? '収入' : '支出'} ・ 約

@@ -17,7 +17,9 @@ interface MonthlyData {
 }
 
 export default function MonthlySummary({ transactions }: MonthlySummaryProps) {
-  const [selectedYear, setSelectedYear] = useState<number | null>(null);
+  const [selectedYear, setSelectedYear] = useState<number | null>(
+    new Date().getFullYear()
+  );
 
   const monthlyData = useMemo(() => {
     const dataMap = new Map<string, MonthlyData>();
@@ -46,33 +48,89 @@ export default function MonthlySummary({ transactions }: MonthlySummaryProps) {
       }
     });
 
-    return Array.from(dataMap.values()).sort((a, b) =>
-      b.yearMonth.localeCompare(a.yearMonth)
-    );
+    return dataMap;
   }, [transactions]);
 
   const years = useMemo(() => {
-    const yearSet = new Set(monthlyData.map(d => d.year));
+    const yearSet = new Set<number>();
+    monthlyData.forEach(d => yearSet.add(d.year));
     return Array.from(yearSet).sort((a, b) => b - a);
   }, [monthlyData]);
 
-  const filteredData = useMemo(() => {
-    if (selectedYear === null) return monthlyData;
-    return monthlyData.filter(d => d.year === selectedYear);
+  const chartData = useMemo<MonthlyData[]>(() => {
+    if (selectedYear !== null) {
+      return Array.from({ length: 12 }, (_, i) => {
+        const month = i + 1;
+        const ym = `${selectedYear}-${String(month).padStart(2, '0')}`;
+        const existing = monthlyData.get(ym);
+        return (
+          existing ?? {
+            yearMonth: ym,
+            year: selectedYear,
+            month,
+            income: 0,
+            expense: 0,
+          }
+        );
+      });
+    }
+
+    if (monthlyData.size === 0) return [];
+    const sortedKeys = Array.from(monthlyData.keys()).sort();
+    const firstKey = sortedKeys[0];
+    const today = new Date();
+    const endYear = today.getFullYear();
+    const endMonth = today.getMonth() + 1;
+
+    const [fy, fm] = firstKey.split('-').map(Number);
+    const result: MonthlyData[] = [];
+    let y = fy;
+    let m = fm;
+    while (y < endYear || (y === endYear && m <= endMonth)) {
+      const ym = `${y}-${String(m).padStart(2, '0')}`;
+      const existing = monthlyData.get(ym);
+      result.push(
+        existing ?? {
+          yearMonth: ym,
+          year: y,
+          month: m,
+          income: 0,
+          expense: 0,
+        }
+      );
+      m += 1;
+      if (m > 12) {
+        m = 1;
+        y += 1;
+      }
+    }
+    return result;
   }, [monthlyData, selectedYear]);
 
   const yearlyTotals = useMemo(() => {
-    return filteredData.reduce(
+    return chartData.reduce(
       (acc, d) => ({
         income: acc.income + d.income,
         expense: acc.expense + d.expense,
       }),
       { income: 0, expense: 0 }
     );
-  }, [filteredData]);
+  }, [chartData]);
 
-  const formatMonth = (month: number) => {
-    return `${month}月`;
+  const maxValue = useMemo(() => {
+    return chartData.reduce(
+      (max, d) => Math.max(max, d.income, d.expense),
+      0
+    );
+  }, [chartData]);
+
+  const formatShortAmount = (n: number): string => {
+    if (n === 0) return '';
+    if (n >= 10000) {
+      const man = n / 10000;
+      return `${Math.round(man * 10) / 10}万`;
+    }
+    return `${Math.round(n / 1000)}千`;
   };
 
   if (transactions.length === 0) {
@@ -112,8 +170,7 @@ export default function MonthlySummary({ transactions }: MonthlySummaryProps) {
         </div>
       </div>
 
-      {/* 合計サマリー */}
-      <div className="grid grid-cols-2 gap-4 mb-4 p-4 bg-zinc-50 dark:bg-zinc-800 rounded-lg">
+      <div className="grid grid-cols-2 gap-4 mb-6 p-4 bg-zinc-50 dark:bg-zinc-800 rounded-lg">
         <div className="text-center">
           <div className="text-xs text-zinc-500 dark:text-zinc-400 mb-1">
             {selectedYear ? `${selectedYear}年` : '全期間'}の収入
@@ -132,46 +189,87 @@ export default function MonthlySummary({ transactions }: MonthlySummaryProps) {
         </div>
       </div>
 
-      {/* 月別テーブル */}
-      <div className="overflow-x-auto">
-        <table className="w-full">
-          <thead>
-            <tr className="border-b border-zinc-200 dark:border-zinc-700">
-              <th className="text-left py-2 px-3 text-sm font-medium text-zinc-600 dark:text-zinc-400">
-                月
-              </th>
-              <th className="text-right py-2 px-3 text-sm font-medium text-zinc-600 dark:text-zinc-400">
-                収入
-              </th>
-              <th className="text-right py-2 px-3 text-sm font-medium text-zinc-600 dark:text-zinc-400">
-                支出
-              </th>
-            </tr>
-          </thead>
-          <tbody>
-            {filteredData.map(data => (
-              <tr
-                key={data.yearMonth}
-                className="border-b border-zinc-100 dark:border-zinc-800 hover:bg-zinc-50 dark:hover:bg-zinc-800/50"
-              >
-                <td className="py-3 px-3 text-zinc-900 dark:text-zinc-100">
-                  {selectedYear === null ? `${data.year}年` : ''}{formatMonth(data.month)}
-                </td>
-                <td className="py-3 px-3 text-right text-green-600 dark:text-green-400">
-                  {formatCurrency(data.income)}
-                </td>
-                <td className="py-3 px-3 text-right text-red-600 dark:text-red-400">
-                  {formatCurrency(data.expense)}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+      <div className="flex items-center gap-4 mb-3 text-xs text-zinc-600 dark:text-zinc-400">
+        <span className="inline-flex items-center gap-1">
+          <span className="inline-block w-3 h-3 rounded-sm bg-green-500" />
+          収入
+        </span>
+        <span className="inline-flex items-center gap-1">
+          <span className="inline-block w-3 h-3 rounded-sm bg-red-500" />
+          支出
+        </span>
       </div>
 
-      {filteredData.length === 0 && (
+      {chartData.length === 0 ? (
         <div className="text-center py-8 text-zinc-500 dark:text-zinc-400">
           {selectedYear ? `${selectedYear}年のデータがありません` : 'データがありません'}
+        </div>
+      ) : (
+        <div className="overflow-x-auto overflow-y-visible pt-5">
+          <div
+            className="flex items-end gap-2 sm:gap-3 pr-2"
+            style={{ minWidth: `${chartData.length * 56}px` }}
+          >
+            {chartData.map(data => {
+              const incomeHeight = maxValue > 0 ? (data.income / maxValue) * 100 : 0;
+              const expenseHeight = maxValue > 0 ? (data.expense / maxValue) * 100 : 0;
+              const isEmpty = data.income === 0 && data.expense === 0;
+              return (
+                <div
+                  key={data.yearMonth}
+                  className="flex-1 min-w-[44px] flex flex-col items-center"
+                >
+                  <div className="relative w-full h-48 flex items-end justify-center gap-1">
+                    <div
+                      className="relative flex-1 h-full max-w-[18px] bg-green-100 dark:bg-green-950/40 rounded-t-sm"
+                      title={`収入 ${formatCurrency(data.income)}`}
+                    >
+                      <div
+                        className="absolute bottom-0 left-0 right-0 bg-green-500 dark:bg-green-400 rounded-t-sm transition-all"
+                        style={{ height: `${incomeHeight}%` }}
+                      />
+                      {data.income > 0 && (
+                        <div
+                          className="absolute left-1/2 -translate-x-1/2 text-[10px] font-medium text-green-700 dark:text-green-300 whitespace-nowrap pointer-events-none"
+                          style={{ bottom: `calc(${incomeHeight}% + 2px)` }}
+                        >
+                          {formatShortAmount(data.income)}
+                        </div>
+                      )}
+                    </div>
+                    <div
+                      className="relative flex-1 h-full max-w-[18px] bg-red-100 dark:bg-red-950/40 rounded-t-sm"
+                      title={`支出 ${formatCurrency(data.expense)}`}
+                    >
+                      <div
+                        className="absolute bottom-0 left-0 right-0 bg-red-500 dark:bg-red-400 rounded-t-sm transition-all"
+                        style={{ height: `${expenseHeight}%` }}
+                      />
+                      {data.expense > 0 && (
+                        <div
+                          className="absolute left-1/2 -translate-x-1/2 text-[10px] font-medium text-red-700 dark:text-red-300 whitespace-nowrap pointer-events-none"
+                          style={{ bottom: `calc(${expenseHeight}% + 2px)` }}
+                        >
+                          {formatShortAmount(data.expense)}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                  <div
+                    className={`mt-2 text-xs font-medium ${
+                      isEmpty
+                        ? 'text-zinc-400 dark:text-zinc-600'
+                        : 'text-zinc-700 dark:text-zinc-300'
+                    }`}
+                  >
+                    {selectedYear === null && data.month === 1
+                      ? `${data.year}/1`
+                      : `${data.month}月`}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
         </div>
       )}
     </div>

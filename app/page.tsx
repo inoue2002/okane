@@ -63,11 +63,6 @@ export default function Home() {
     );
   };
 
-  const handleUpdateInitialBalance = (balance: number) => {
-    setInitialBalance(balance);
-    saveInitialBalance(balance);
-  };
-
   const handleClearAll = () => {
     if (confirm('すべてのデータを削除しますか？この操作は取り消せません。')) {
       clearAllData();
@@ -86,16 +81,23 @@ export default function Home() {
   // Calculate daily balances
   const dailyBalances = calculateDailyBalances(transactions, initialBalance);
 
-  // Calculate totals
-  const totalIncome = transactions
-    .filter(t => t.type === 'income')
+  const currentYear = new Date().getFullYear();
+  const todayString = new Date().toISOString().split('T')[0];
+
+  const yearIncome = transactions
+    .filter(t => t.type === 'income' && t.date.startsWith(`${currentYear}-`))
     .reduce((sum, t) => sum + t.amount, 0);
 
-  const totalExpense = transactions
-    .filter(t => t.type === 'expense')
+  const yearExpense = transactions
+    .filter(t => t.type === 'expense' && t.date.startsWith(`${currentYear}-`))
     .reduce((sum, t) => sum + t.amount, 0);
 
-  const currentBalance = initialBalance + totalIncome - totalExpense;
+  const todayBalance = transactions
+    .filter(t => t.date <= todayString)
+    .reduce(
+      (sum, t) => sum + (t.type === 'income' ? t.amount : -t.amount),
+      initialBalance
+    );
 
   if (!isLoaded) {
     return (
@@ -121,11 +123,10 @@ export default function Home() {
         </div>
 
         <BalanceSummary
-          initialBalance={initialBalance}
-          onUpdateInitialBalance={handleUpdateInitialBalance}
-          currentBalance={currentBalance}
-          totalIncome={totalIncome}
-          totalExpense={totalExpense}
+          year={currentYear}
+          todayBalance={todayBalance}
+          yearIncome={yearIncome}
+          yearExpense={yearExpense}
         />
 
         <BalanceChart
