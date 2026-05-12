@@ -3,6 +3,7 @@ import { Transaction } from './types';
 const STORAGE_KEYS = {
   TRANSACTIONS: 'okane_transactions',
   INITIAL_BALANCE: 'okane_initial_balance',
+  RECURRING_TEMPLATES: 'okane_recurring_templates',
 };
 
 export function saveTransactions(transactions: Transaction[]): void {
@@ -47,5 +48,7 @@ export function clearAllData(): void {
   if (typeof window !== 'undefined') {
     localStorage.removeItem(STORAGE_KEYS.TRANSACTIONS);
     localStorage.removeItem(STORAGE_KEYS.INITIAL_BALANCE);
+    localStorage.removeItem(STORAGE_KEYS.RECURRING_TEMPLATES);
   }
 }
+

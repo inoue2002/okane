@@ -6,12 +6,19 @@ import BalanceTimeline from './components/BalanceTimeline';
 import BalanceSummary from './components/BalanceSummary';
 import BalanceChart from './components/BalanceChart';
 import MonthlySummary from './components/MonthlySummary';
+import RecurringTemplates from './components/RecurringTemplates';
 import DataManager from './components/DataManager';
 import DisclaimerBanner from './components/DisclaimerBanner';
 import Footer from './components/Footer';
 import { Transaction } from '@/lib/types';
 import { calculateDailyBalances } from '@/lib/utils';
-import { loadTransactions, saveTransactions, loadInitialBalance, saveInitialBalance, clearAllData } from '@/lib/storage';
+import {
+  loadTransactions,
+  saveTransactions,
+  loadInitialBalance,
+  saveInitialBalance,
+  clearAllData,
+} from '@/lib/storage';
 
 export default function Home() {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
@@ -127,6 +134,11 @@ export default function Home() {
         />
 
         <MonthlySummary transactions={transactions} />
+
+        <RecurringTemplates
+          transactions={transactions}
+          onAddTransaction={handleAddTransaction}
+        />
 
         <TransactionForm onAddTransaction={handleAddTransaction} />
 
